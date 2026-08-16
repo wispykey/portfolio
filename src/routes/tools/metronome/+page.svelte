@@ -12,16 +12,18 @@
     const maxTempo = 300;
 
     // Web Audio API scheduler variables
-    const audioContext = new AudioContext();
-    const noteQueue = [];
     const lookahead = 25.0;
     const scheduleAheadTime = 0.1;
-    let nextNoteTime = 0.0;
+    const noteQueue = [];
+
+    // Audio context must be regenerated on refresh, so it can't be initialized here
+    let audioContext: AudioContext;
 
     // Metronome state
     let tempo = $state(60);
     let isPlaying = $state(false);
     let timerID: number;
+    let nextNoteTime = 0.0;
 
     function scheduler() {
         while (nextNoteTime < audioContext.currentTime + scheduleAheadTime) {
@@ -69,6 +71,8 @@
     }
 
     onMount(async () => {
+        audioContext = new AudioContext();
+
         async function getFile(filepath: string) {
             const response = await fetch(filepath);
             const arrayBuffer = await response.arrayBuffer();
