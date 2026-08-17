@@ -11,21 +11,24 @@
     const minTempo = 20;
     const maxTempo = 180;
     const maxSubdivision = 6;
+    const baseTempo = 60;
 
     // Web Audio API scheduler variables
     const lookahead = 25.0;
-    // Lower value helps sync animation witohut
-    const scheduleAheadTime = 0.02;
-    const noteQueue = [];
 
     // Audio context must be regenerated on refresh, so it can't be initialized here
     let audioContext: AudioContext;
 
     // Metronome state
-    let tempo = $state(60);
+    let tempo = $state(baseTempo);
     let isPlaying = $state(false);
     let timerID: number;
     let nextNoteTime = 0.0;
+
+    // As tempo gets faster, longer schedule-ahead times begin to feel sluggish; adjust dynamically
+    let scheduleAheadTime = $derived(
+        0.1 - 0.0013 * Math.max(0, tempo - baseTempo),
+    );
 
     // Subdivided beat is just the total number of clicks
     let currentSubdividedBeatInMeasure = $state(-1);
@@ -61,8 +64,6 @@
     }
 
     function scheduleNote(time: number) {
-        noteQueue.push(time);
-
         playSample(metronomeHighClick, time);
 
         currentSubdividedBeatInMeasure =
