@@ -9,11 +9,13 @@
 
     // Arbitrary tempo bounds
     const minTempo = 20;
-    const maxTempo = 300;
+    const maxTempo = 180;
+    const maxSubdivision = 6;
 
     // Web Audio API scheduler variables
     const lookahead = 25.0;
-    const scheduleAheadTime = 0.1;
+    // Lower value helps sync animation witohut
+    const scheduleAheadTime = 0.02;
     const noteQueue = [];
 
     // Audio context must be regenerated on refresh, so it can't be initialized here
@@ -28,10 +30,13 @@
     // Subdivided beat is just the total number of clicks
     let currentSubdividedBeatInMeasure = $state(-1);
     let numBeatsPerMeasure = $state(4);
+
     let subdivision = $state(1);
+    let subdividedTempo = $derived(tempo * subdivision);
+    let subdividedBeatsPerMeasure = $derived(numBeatsPerMeasure * subdivision);
 
     let subdividedBeatMarkers = $derived(
-        Array(numBeatsPerMeasure * subdivision)
+        Array(subdividedBeatsPerMeasure)
             .fill(false)
             .map((_, i) => i === currentSubdividedBeatInMeasure),
     );
@@ -61,13 +66,13 @@
         playSample(metronomeHighClick, time);
 
         currentSubdividedBeatInMeasure =
-            (currentSubdividedBeatInMeasure + 1) % numBeatsPerMeasure;
+            (currentSubdividedBeatInMeasure + 1) % subdividedBeatsPerMeasure;
     }
 
     function nextNote() {
-        const secondsPerBeat = 60.0 / tempo;
+        const secondsPerSubdividedBeat = 60.0 / subdividedTempo;
 
-        nextNoteTime += secondsPerBeat;
+        nextNoteTime += secondsPerSubdividedBeat;
     }
 
     function togglePlaying() {
@@ -101,9 +106,18 @@
     });
 </script>
 
-<p>{tempo}</p>
+<p><img src="" alt="quarter note equals" /> {tempo} <strong>BPM</strong></p>
 
 <input type="range" min={minTempo} max={maxTempo} bind:value={tempo} />
+
+<label for="subdivision">Subdivision</label>
+<input
+    name="subdivision"
+    type="number"
+    min={1}
+    max={maxSubdivision}
+    bind:value={subdivision}
+/>
 
 <button onclick={togglePlaying}>
     Play/Pause
