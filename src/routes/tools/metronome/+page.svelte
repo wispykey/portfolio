@@ -125,7 +125,7 @@
 <input
     name="numBeatsPerMeasure"
     type="number"
-    min={1}
+    min={2}
     max={maxBeatsPerMeasure}
     bind:value={numBeatsPerMeasure}
 />
