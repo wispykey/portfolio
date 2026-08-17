@@ -111,47 +111,81 @@
     });
 </script>
 
-<p><img src="" alt="quarter note equals" /> {tempo} <strong>BPM</strong></p>
+<div class="main-container">
+    <section class="bpm-display">
+        <h2><strong>{tempo}</strong></h2>
+    </section>
 
-<input type="range" min={minTempo} max={maxTempo} bind:value={tempo} />
+    <div class="beat-visualization">
+        <svg width="400" height="50">
+            {#each subdividedBeatMarkers as marker, i}
+                <circle
+                    r={marker ? 8 : 3}
+                    cx={(400 / subdividedBeatsPerMeasure) * (i + 0.5)}
+                    cy="25"
+                    fill={marker ? "green" : "black"}
+                ></circle>
+            {/each}
+        </svg>
+    </div>
 
-<label for="subdivision">Subdivision</label>
-<input
-    name="subdivision"
-    type="number"
-    min={1}
-    max={maxSubdivision}
-    bind:value={subdivision}
-/>
+    <input type="range" min={minTempo} max={maxTempo} bind:value={tempo} />
 
-<label for="numBeatsPerMeasure">Beats Per Measure</label>
-<input
-    name="numBeatsPerMeasure"
-    type="number"
-    min={2}
-    max={maxBeatsPerMeasure}
-    bind:value={numBeatsPerMeasure}
-/>
+    <form action="">
+        <label>
+            Beats Per Measure
+            <input
+                name="numBeatsPerMeasure"
+                type="number"
+                min={2}
+                max={maxBeatsPerMeasure}
+                bind:value={numBeatsPerMeasure}
+            />
+        </label>
+        <label>
+            Subdivision
+            <input
+                name="subdivision"
+                type="number"
+                min={1}
+                max={maxSubdivision}
+                bind:value={subdivision}
+            />
+        </label>
+    </form>
 
-<button onclick={togglePlaying}>
-    Play/Pause
-    <!-- <img src="l" width="50" height="50" alt="the play button" /> -->
-</button>
-
-<div class="beat-visualization">
-    <svg width="600">
-        {#each subdividedBeatMarkers as marker, i}
-            <circle
-                r={marker ? 8 : 3}
-                cx={(50 - subdividedBeatsPerMeasure) * (i + 1)}
-                cy="100"
-                fill={marker ? "green" : "black"}
-            ></circle>
-        {/each}
-    </svg>
+    <button onclick={togglePlaying}>
+        Play/Pause
+        <!-- <img src="l" width="50" height="50" alt="the play button" /> -->
+    </button>
 </div>
 
 <style>
+    .main-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .bpm-display {
+        text-align: center;
+    }
+    form {
+        display: flex;
+        flex-direction: column;
+        max-width: 300px;
+        padding: 16px;
+    }
+
+    form label {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+    h2 {
+        margin-bottom: 0;
+        padding: 0;
+        font-size: 60px;
+    }
     circle {
         transition: r 0.2s ease-out;
     }
