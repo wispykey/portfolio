@@ -10,7 +10,8 @@
     // Arbitrary tempo bounds
     const minTempo = 20;
     const maxTempo = 180;
-    const maxSubdivision = 6;
+    const maxSubdivision = 4;
+    const maxBeatsPerMeasure = 8;
     const baseTempo = 60;
 
     // Web Audio API scheduler variables
@@ -120,15 +121,28 @@
     bind:value={subdivision}
 />
 
+<label for="numBeatsPerMeasure">Beats Per Measure</label>
+<input
+    name="numBeatsPerMeasure"
+    type="number"
+    min={1}
+    max={maxBeatsPerMeasure}
+    bind:value={numBeatsPerMeasure}
+/>
+
 <button onclick={togglePlaying}>
     Play/Pause
     <!-- <img src="l" width="50" height="50" alt="the play button" /> -->
 </button>
 
 <div class="beat-visualization">
-    <svg width="500">
+    <svg width="600">
         {#each subdividedBeatMarkers as marker, i}
-            <circle r={marker ? 8 : 3} cx={50 * (i + 1)} cy="100"></circle>
+            <circle
+                r={marker ? 8 : 3}
+                cx={(50 - subdividedBeatsPerMeasure) * (i + 1)}
+                cy="100"
+            ></circle>
         {/each}
     </svg>
 </div>
