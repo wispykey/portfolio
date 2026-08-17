@@ -54,9 +54,12 @@
         timerID = setTimeout(scheduler, lookahead);
     }
 
-    function playSample(audioBuffer: AudioBuffer, time: number) {
+    function playSample(time: number) {
         const sampleSource = new AudioBufferSourceNode(audioContext, {
-            buffer: audioBuffer,
+            buffer:
+                currentSubdividedBeatInMeasure === 0
+                    ? metronomeHighClick
+                    : metronomeLowClick,
             // playbackRate,
         });
         sampleSource.connect(audioContext.destination);
@@ -65,10 +68,10 @@
     }
 
     function scheduleNote(time: number) {
-        playSample(metronomeHighClick, time);
-
         currentSubdividedBeatInMeasure =
             (currentSubdividedBeatInMeasure + 1) % subdividedBeatsPerMeasure;
+
+        playSample(time);
     }
 
     function nextNote() {
@@ -142,7 +145,14 @@
                 r={marker ? 8 : 3}
                 cx={(50 - subdividedBeatsPerMeasure) * (i + 1)}
                 cy="100"
+                fill={marker ? "green" : "black"}
             ></circle>
         {/each}
     </svg>
 </div>
+
+<style>
+    circle {
+        transition: r 0.2s ease-out;
+    }
+</style>
