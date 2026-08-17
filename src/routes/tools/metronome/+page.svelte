@@ -25,6 +25,17 @@
     let timerID: number;
     let nextNoteTime = 0.0;
 
+    // Subdivided beat is just the total number of clicks
+    let currentSubdividedBeatInMeasure = $state(-1);
+    let numBeatsPerMeasure = $state(4);
+    let subdivision = $state(1);
+
+    let subdividedBeatMarkers = $derived(
+        Array(numBeatsPerMeasure * subdivision)
+            .fill(false)
+            .map((_, i) => i === currentSubdividedBeatInMeasure),
+    );
+
     function scheduler() {
         while (nextNoteTime < audioContext.currentTime + scheduleAheadTime) {
             scheduleNote(nextNoteTime);
@@ -48,6 +59,9 @@
         noteQueue.push(time);
 
         playSample(metronomeHighClick, time);
+
+        currentSubdividedBeatInMeasure =
+            (currentSubdividedBeatInMeasure + 1) % numBeatsPerMeasure;
     }
 
     function nextNote() {
@@ -64,9 +78,11 @@
             }
 
             nextNoteTime = audioContext.currentTime;
+
             scheduler();
         } else {
             clearTimeout(timerID);
+            currentSubdividedBeatInMeasure = -1;
         }
     }
 
@@ -93,3 +109,11 @@
     Play/Pause
     <!-- <img src="l" width="50" height="50" alt="the play button" /> -->
 </button>
+
+<div class="beat-visualization">
+    <svg width="500">
+        {#each subdividedBeatMarkers as marker, i}
+            <circle r={marker ? 8 : 3} cx={50 * (i + 1)} cy="100"></circle>
+        {/each}
+    </svg>
+</div>
