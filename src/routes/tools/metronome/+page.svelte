@@ -158,9 +158,33 @@
         </label>
     </form>
 
-    <button onclick={togglePlaying}>
-        Play/Pause
-        <!-- <img src="l" width="50" height="50" alt="the play button" /> -->
+    <button aria-label="play-button" onclick={togglePlaying}>
+        <svg width="100" height="100">
+            <circle
+                r="40"
+                stroke="black"
+                stroke-width="2"
+                fill="black"
+                cx="52"
+                cy="52"
+            ></circle>
+            <circle r="40" fill="green" cx="50" cy="50"></circle>
+
+            <circle
+                r="40"
+                stroke="black"
+                stroke-width="2"
+                fill="none"
+                cx="50"
+                cy="50"
+            ></circle>
+            <path
+                d="M 43 35 v 30 l 20 -15 Z"
+                fill="none"
+                stroke="black"
+                stroke-width="2"
+            />
+        </svg>
     </button>
 </div>
 
@@ -192,5 +216,10 @@
     }
     circle {
         transition: r 0.2s ease-out;
+    }
+
+    button {
+        background: none;
+        border: none;
     }
 </style>
