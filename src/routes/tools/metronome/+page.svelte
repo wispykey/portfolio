@@ -170,20 +170,25 @@
             ></circle>
             <circle r="40" fill="green" cx="50" cy="50"></circle>
 
-            <circle
-                r="40"
-                stroke="black"
-                stroke-width="2"
-                fill="none"
-                cx="50"
-                cy="50"
-            ></circle>
-            <path
-                d="M 43 35 v 30 l 20 -15 Z"
-                fill="none"
-                stroke="black"
-                stroke-width="2"
-            />
+            {#if !isPlaying}
+                <circle
+                    r="40"
+                    stroke="black"
+                    stroke-width="2"
+                    fill="none"
+                    cx="50"
+                    cy="50"
+                ></circle>
+                <path
+                    d="M 43 35 v 30 l 20 -15 Z"
+                    fill="none"
+                    stroke="black"
+                    stroke-width="2"
+                />
+            {:else}
+                <path d="M 43 40 v 20 h 4 v -20 Z" fill="black"></path>
+                <path d="M 57 40 v 20 h -4 v -20 Z" fill="black"></path>
+            {/if}
         </svg>
     </button>
 </div>
@@ -214,6 +219,7 @@
         padding: 0;
         font-size: 60px;
     }
+
     circle {
         transition: r 0.2s ease-out;
     }
