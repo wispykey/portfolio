@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { onMount } from "svelte";
+    import { onDestroy, onMount } from "svelte";
 
     // Loading samples based on Web Audio API docs instead of using <audio> elements
     const METRONOME_HIGH_CLICK_FILE_PATH = "/metronome_click_F4.wav";
@@ -108,6 +108,10 @@
 
         metronomeHighClick = await getFile(METRONOME_HIGH_CLICK_FILE_PATH);
         metronomeLowClick = await getFile(METRONOME_LOW_CLICK_FILE_PATH);
+    });
+
+    onDestroy(() => {
+        clearTimeout(timerID);
     });
 </script>
 
