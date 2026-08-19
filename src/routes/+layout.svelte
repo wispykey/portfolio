@@ -33,6 +33,7 @@
 		gap: 1rem;
 		justify-content: center;
 		list-style: none;
+		padding-left: 0;
 	}
 
 	a {
