@@ -15,6 +15,7 @@
 	<a href="/tools">Tools</a>
 	<a href="/games">Games</a>
 	<a href="/music">Music</a>
+	<a href="/blog">Blog</a>
 </nav>
 
 {@render children()}
