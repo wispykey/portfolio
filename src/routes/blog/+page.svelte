@@ -1,9 +1,5 @@
-<script lang="ts">
+<script>
     let { data } = $props();
-
-    $effect(() => {
-        $inspect(data);
-    });
 </script>
 
 <p>
@@ -12,9 +8,9 @@
 </p>
 
 <ul>
-    {#each data.summaries as summary}
+    {#each data.posts as post}
         <li>
-            <a href={summary.slug}>{summary.title}</a>
+            <a href={post.path}>{post.meta.title}</a>
         </li>
     {/each}
 </ul>

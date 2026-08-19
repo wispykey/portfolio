@@ -1,12 +1,9 @@
-import { error } from "@sveltejs/kit";
-import { posts } from "../data";
-
-export function load({ params }) {
-    const post = posts.find((post) => post.slug === params.slug)
-
-    if (!post) error(404);
+export async function load({ params }) {
+    const post = await import(`../${params.slug}.md`)
+    const { title, date } = post.metadata;
+    const content = post.default;
 
     return {
-        post
-    };
+        content, title, date
+    }
 }
