@@ -10,12 +10,32 @@
 </svelte:head>
 
 <nav>
-	<a href="/">Home</a>
-	<a href="/about">About</a>
-	<a href="/tools">Tools</a>
-	<a href="/games">Games</a>
-	<a href="/music">Music</a>
-	<a href="/blog">Blog</a>
+	<ul>
+		<li><a href="/">Home</a></li>
+		<li><a href="/tools">Tools</a></li>
+		<li><a href="/games">Games</a></li>
+		<li><a href="/music">Music</a></li>
+		<li><a href="/blog">Blog</a></li>
+		<li><a href="/about">About</a></li>
+	</ul>
 </nav>
 
 {@render children()}
+
+<style>
+	:root {
+		font-family: "Noto Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
+			sans-serif;
+	}
+
+	ul {
+		display: flex;
+		gap: 1rem;
+		justify-content: center;
+		list-style: none;
+	}
+
+	a {
+		text-decoration: none;
+	}
+</style>
