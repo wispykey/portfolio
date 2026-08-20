@@ -9,8 +9,8 @@ export async function load() {
             const { metadata } = await resolver() as any;
             // This match guarantee depends on the glob being correct
             const fileNameMatch = path.match(/\/[^/]*$/)!;
-            const slugName = fileNameMatch[0].slice(0, -3);
-            const postPath = `/blog${slugName}`;
+            const slug = fileNameMatch[0].slice(0, -3);
+            const postPath = `/blog${slug}`;
 
             return {
                 meta: metadata,

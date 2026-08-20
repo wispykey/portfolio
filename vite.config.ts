@@ -21,7 +21,14 @@ export default defineConfig({
 			preprocess: [
 				mdsvex({
 					extensions: ['.md'],
-				})
+				}),
+				{
+					name: 'mdsvex-script-module-fix',
+					markup: ({ content, filename }) => {
+						if (!filename?.endsWith('.md')) return;
+						return { code: content.replace('<script context="module">', '<script module>') };
+					}
+				}
 			]
 		})
 	]
