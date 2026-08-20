@@ -1,5 +1,3 @@
-<svelte:options customElement={{ tag: "my-app", shadow: "none" }} />
-
 <script lang="ts">
     let { data } = $props();
 </script>
