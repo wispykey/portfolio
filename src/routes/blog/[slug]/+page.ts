@@ -21,6 +21,6 @@ export async function load({ params }) {
     return {
         content,
         title: metadata.title,
-        date: metadata.date
+        date: metadata.created
     }
 }
