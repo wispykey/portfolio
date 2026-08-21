@@ -42,10 +42,6 @@
 </nav>
 
 <style>
-    button {
-        padding: 1rem;
-    }
-
     a {
         text-decoration: none;
         color: blue;

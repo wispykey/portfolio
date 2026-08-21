@@ -20,23 +20,39 @@
 	</ul>
 </nav>
 
-{@render children()}
+<main>{@render children()}</main>
 
 <style>
 	:root {
 		font-family: "Noto Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
 			sans-serif;
+
+		box-sizing: border-box;
+	}
+
+	nav {
+		padding: 0.5rem 1rem;
+		font-size: 20px;
 	}
 
 	ul {
 		display: flex;
-		gap: 1rem;
+		gap: 1.5rem;
 		justify-content: center;
 		list-style: none;
-		padding-left: 0;
+		padding: 0;
+		margin: 0;
+	}
+
+	li {
+		padding: 0;
 	}
 
 	a {
 		text-decoration: none;
+	}
+
+	main {
+		padding: 0.5rem 2rem;
 	}
 </style>
