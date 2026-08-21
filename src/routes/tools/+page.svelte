@@ -9,4 +9,5 @@
     <li>
         <a href="metronome">Metronome</a>
     </li>
+    <li><a href="meditone">Meditone</a></li>
 </nav>
