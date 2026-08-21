@@ -60,4 +60,8 @@
         border-radius: 8px;
         user-select: none;
     }
+
+    nav {
+        margin-top: 1rem;
+    }
 </style>
