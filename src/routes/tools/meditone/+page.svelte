@@ -47,18 +47,15 @@
         let displayValue =
             noteStrings[noteFromPitch(pitchDetectionValue) % 12] ?? NO_INPUT;
 
-        console.log(currSustainedFrames);
         // Always update the detected value
         detectedValue = displayValue;
         // But only update the displayed value when
         if (displayedValue !== detectedValue) {
             if (currSustainedFrames < smoothingFrameThreshold) {
-                console.log("here");
                 currSustainedFrames++;
                 return;
             } else {
                 displayedValue = displayValue ?? NO_INPUT;
-                console.log("there");
                 currSustainedFrames = 0;
             }
         }
