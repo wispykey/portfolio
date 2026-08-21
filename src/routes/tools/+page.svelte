@@ -7,8 +7,8 @@
 
 <nav>
     <li>
-        <svg width="100" height="100">
-            <a href="metronome" title="metronome">
+        <a href="metronome" title="metronome">
+            <svg width="100" height="100">
                 <path d="M 51 10 v 60 h 20 Z"></path>
                 <path d="M 49 10 v 60 h -20 Z"></path>
                 <line
@@ -20,8 +20,8 @@
                     stroke-width="2"
                 ></line>
                 <text x="6" y="90">Metronome</text>
-            </a>
-        </svg>
+            </svg>
+        </a>
     </li>
     <li><a href="meditone">Meditone</a></li>
 </nav>
