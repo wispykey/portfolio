@@ -4,12 +4,16 @@
     let audioContext = new AudioContext();
     let analyser = audioContext.createAnalyser();
 
-    analyser.minDecibels = -90;
+    analyser.minDecibels = -110;
     analyser.maxDecibels = -10;
     analyser.smoothingTimeConstant = 0.85;
 
     const NO_INPUT = "No input detected";
-    let display = $state(NO_INPUT);
+    let displayedValue = $state(NO_INPUT);
+    let detectedValue = $state(NO_INPUT);
+
+    let smoothingFrameThreshold = $state(30);
+    let currSustainedFrames = 0;
 
     let animFrameID = 0;
 
@@ -40,8 +44,24 @@
             audioContext.sampleRate,
         );
 
-        let displayValue = noteStrings[noteFromPitch(pitchDetectionValue) % 12];
-        display = displayValue ?? NO_INPUT;
+        let displayValue =
+            noteStrings[noteFromPitch(pitchDetectionValue) % 12] ?? NO_INPUT;
+
+        console.log(currSustainedFrames);
+        // Always update the detected value
+        detectedValue = displayValue;
+        // But only update the displayed value when
+        if (displayedValue !== detectedValue) {
+            if (currSustainedFrames < smoothingFrameThreshold) {
+                console.log("here");
+                currSustainedFrames++;
+                return;
+            } else {
+                displayedValue = displayValue ?? NO_INPUT;
+                console.log("there");
+                currSustainedFrames = 0;
+            }
+        }
     }
 
     // From PitchDetect: https://github.com/cwilso/PitchDetect/blob/master/js/pitchdetect.js
@@ -156,6 +176,7 @@
 
     onDestroy(() => {
         cancelAnimationFrame(animFrameID);
+        audioContext.close();
     });
 </script>
 
@@ -183,4 +204,30 @@ Note:
 The above note comes from https://alexanderell.is/posts/tuner/tuner.js
  -->
 
-<p>{display}</p>
+<p>{displayedValue}</p>
+
+<div class="controls">
+    <label for="sensitivity"
+        >Required duration: {smoothingFrameThreshold} frames</label
+    >
+    <input
+        name="sensitivity"
+        type="range"
+        min="0"
+        max="60"
+        bind:value={smoothingFrameThreshold}
+    />
+</div>
+
+<style>
+    p {
+        font-size: 60px;
+        text-align: center;
+    }
+
+    .controls {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+</style>
