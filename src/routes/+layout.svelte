@@ -13,7 +13,7 @@
 	<ul>
 		<li><a href="/">Home</a></li>
 		<li><a href="/tools">Tools</a></li>
-		<li><a href="/games">Games</a></li>
+		<!-- <li><a href="/games">Games</a></li> -->
 		<li><a href="/music">Music</a></li>
 		<li><a href="/blog">Blog</a></li>
 		<li><a href="/about">About</a></li>
