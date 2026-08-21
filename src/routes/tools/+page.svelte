@@ -1,8 +1,8 @@
 <h1>Tools</h1>
 
 <p>
-    Here is where I put interactive stuff that are useful to me, and maybe
-    useful to others.
+    Here is where I put interactive projects that I created for learning, and
+    may or may not be useful.
 </p>
 
 <nav>
