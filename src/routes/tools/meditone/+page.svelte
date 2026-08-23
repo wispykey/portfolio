@@ -3,6 +3,8 @@
 
     let audioContext = new AudioContext();
     let analyser = audioContext.createAnalyser();
+    let canvas: HTMLCanvasElement;
+    let canvasContext: CanvasRenderingContext2D;
 
     analyser.minDecibels = -110;
     analyser.maxDecibels = -10;
@@ -32,9 +34,7 @@
             streamNode.connect(audioContext.destination);
         });
 
-    function draw() {
-        animFrameID = requestAnimationFrame(draw);
-
+    function detectPitch() {
         const buffer = new Float32Array(analyser.fftSize);
         // This writes in-place
         analyser.getFloatTimeDomainData(buffer);
@@ -59,6 +59,46 @@
                 currSustainedFrames = 0;
             }
         }
+    }
+
+    function visualize() {
+        const buffer = new Uint8Array(analyser.frequencyBinCount);
+        analyser.getByteTimeDomainData(buffer);
+
+        canvasContext.clearRect(0, 0, canvas.width, canvas.height);
+
+        canvasContext.fillStyle = "rgb(240, 240, 240)";
+        canvasContext.fillRect(0, 0, canvas.width, canvas.height);
+
+        canvasContext.lineWidth = 2;
+        canvasContext.strokeStyle = "rgb(0, 0, 0)";
+        canvasContext.beginPath();
+
+        const sliceWidth = canvas.width / analyser.frequencyBinCount;
+
+        let x = 0;
+        for (let i = 0; i < analyser.frequencyBinCount; i++) {
+            const v = buffer[i] / 128.0;
+            const y = v * (canvas.height / 2);
+
+            if (i === 0) {
+                canvasContext.moveTo(x, y);
+            } else {
+                canvasContext.lineTo(x, y);
+            }
+
+            x += sliceWidth;
+        }
+
+        canvasContext.lineTo(canvas.width, canvas.height / 2);
+        canvasContext.stroke();
+    }
+
+    function draw() {
+        animFrameID = requestAnimationFrame(draw);
+
+        detectPitch();
+        visualize();
     }
 
     // From PitchDetect: https://github.com/cwilso/PitchDetect/blob/master/js/pitchdetect.js
@@ -168,6 +208,8 @@
     }
 
     onMount(() => {
+        canvasContext = canvas.getContext("2d")!;
+
         draw();
     });
 
@@ -214,6 +256,7 @@ The above note comes from https://alexanderell.is/posts/tuner/tuner.js
         max="60"
         bind:value={smoothingFrameThreshold}
     />
+    <canvas bind:this={canvas} id="visualization" width="500"> </canvas>
 </div>
 
 <style>
@@ -226,5 +269,6 @@ The above note comes from https://alexanderell.is/posts/tuner/tuner.js
         display: flex;
         flex-direction: column;
         align-items: center;
+        gap: 1rem;
     }
 </style>
