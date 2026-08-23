@@ -1,5 +1,5 @@
 ---
-title: "Creating blog posts from markdown using mdsvex"
+title: "Converting markdown to HTML for blog posts"
 created: "Weds, Aug 19 2026"
 ---
 
