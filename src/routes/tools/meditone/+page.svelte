@@ -20,7 +20,10 @@
     let animFrameID = 0;
 
     const activeOscillators: OscillatorNode[] = [];
-    const chordProgression = ["Cm7", "Gm7", "Bbm7", "Fm7"];
+    const chordProgression = [
+        [220.0, 262.0, 330.0],
+        [233.0, 277.0, 349.0],
+    ];
     const lookahead = 25.0;
     const scheduleAheadTime = 0.15;
     const tempo = 60;
@@ -221,17 +224,17 @@
 
     function scheduler() {
         while (nextChordTime < audioContext.currentTime + scheduleAheadTime) {
-            scheduleNote(nextChordTime);
+            scheduleChord(nextChordTime);
             nextChord();
         }
 
-        // timerID = setTimeout(scheduler, lookahead);
+        timerID = setTimeout(scheduler, lookahead);
     }
 
     function nextChord() {
-        const secondsPerBeat = 60.0 / tempo;
+        const secondsPerChord = (60.0 / tempo) * 4;
 
-        nextChordTime += secondsPerBeat;
+        nextChordTime += secondsPerChord;
     }
 
     function startOscillator(
@@ -257,7 +260,9 @@
         });
     }
 
-    function playSample(time: number) {
+    function createOscillators() {
+        stopAllOscillators();
+
         const osc1 = startOscillator(220.0);
         const osc2 = startOscillator(262.0);
         const osc3 = startOscillator(330.0);
@@ -267,11 +272,15 @@
         activeOscillators[2] = osc3;
     }
 
-    function scheduleNote(time: number) {
+    function scheduleChord(time: number) {
         currentChordInProgression =
             (currentChordInProgression + 1) % chordProgression.length;
 
-        playSample(time);
+        const currentChord = chordProgression[currentChordInProgression];
+
+        activeOscillators[0].frequency.setValueAtTime(currentChord[0], time);
+        activeOscillators[1].frequency.setValueAtTime(currentChord[1], time);
+        activeOscillators[2].frequency.setValueAtTime(currentChord[2], time);
     }
 
     function toggleChordsPlaying() {
@@ -283,6 +292,7 @@
 
             nextChordTime = audioContext.currentTime;
 
+            createOscillators();
             scheduler();
         } else {
             clearTimeout(timerID);
