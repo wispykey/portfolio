@@ -1,5 +1,9 @@
 <script lang="ts">
     import { onDestroy, onMount } from "svelte";
+    import {
+        createChordProgression,
+        i_bVI_bIII_bVII,
+    } from "./chord-progressions";
 
     let audioContext = new AudioContext();
     let analyser = audioContext.createAnalyser();
@@ -20,10 +24,9 @@
     let animFrameID = 0;
 
     const activeOscillators: OscillatorNode[] = [];
-    const chordProgression = [
-        [220.0, 262.0, 330.0],
-        [233.0, 277.0, 349.0],
-    ];
+
+    // Frequencies, not chord names
+    let chordProgression: number[][] = [];
     const lookahead = 25.0;
     const scheduleAheadTime = 0.15;
     const tempo = 60;
@@ -307,6 +310,8 @@
         gainNode.connect(audioContext.destination);
         gainNode.gain.value = 0.1;
 
+        chordProgression = createChordProgression(i_bVI_bIII_bVII);
+
         draw();
     });
 
@@ -354,9 +359,8 @@ The above note comes from https://alexanderell.is/posts/tuner/tuner.js
         bind:value={smoothingFrameThreshold}
     />
     <canvas bind:this={canvas} id="visualization" width="500"> </canvas>
+    <button onclick={toggleChordsPlaying} type="button">Play chords</button>
 </div>
-
-<button onclick={toggleChordsPlaying} type="button">Play chords</button>
 
 <style>
     p {
