@@ -19,6 +19,18 @@
 
     let animFrameID = 0;
 
+    const activeOscillators: OscillatorNode[] = [];
+    const chordProgression = ["Cm7", "Gm7", "Bbm7", "Fm7"];
+    const lookahead = 25.0;
+    const scheduleAheadTime = 0.15;
+    const tempo = 60;
+    let isChordsPlaying = $state(false);
+    let nextChordTime = 0.0;
+    let timerID = -1;
+    let currentChordInProgression = 0;
+
+    let gainNode: GainNode;
+
     navigator.mediaDevices
         .getUserMedia({
             video: false,
@@ -207,8 +219,83 @@
         return sampleRate / T0;
     }
 
+    function scheduler() {
+        while (nextChordTime < audioContext.currentTime + scheduleAheadTime) {
+            scheduleNote(nextChordTime);
+            nextChord();
+        }
+
+        // timerID = setTimeout(scheduler, lookahead);
+    }
+
+    function nextChord() {
+        const secondsPerBeat = 60.0 / tempo;
+
+        nextChordTime += secondsPerBeat;
+    }
+
+    function startOscillator(
+        freq: number = 440.0,
+        type: OscillatorType = "sine",
+    ) {
+        const osc = audioContext.createOscillator();
+
+        // Gain node should be connected to destination already
+        osc.connect(gainNode);
+
+        osc.type = type;
+        osc.frequency.value = freq;
+
+        osc.start();
+
+        return osc;
+    }
+
+    function stopAllOscillators() {
+        activeOscillators.map((osc) => {
+            osc.stop();
+        });
+    }
+
+    function playSample(time: number) {
+        const osc1 = startOscillator(220.0);
+        const osc2 = startOscillator(262.0);
+        const osc3 = startOscillator(330.0);
+
+        activeOscillators[0] = osc1;
+        activeOscillators[1] = osc2;
+        activeOscillators[2] = osc3;
+    }
+
+    function scheduleNote(time: number) {
+        currentChordInProgression =
+            (currentChordInProgression + 1) % chordProgression.length;
+
+        playSample(time);
+    }
+
+    function toggleChordsPlaying() {
+        isChordsPlaying = !isChordsPlaying;
+        if (isChordsPlaying) {
+            if (audioContext.state === "suspended") {
+                audioContext.resume();
+            }
+
+            nextChordTime = audioContext.currentTime;
+
+            scheduler();
+        } else {
+            clearTimeout(timerID);
+            stopAllOscillators();
+        }
+    }
+
     onMount(() => {
         canvasContext = canvas.getContext("2d")!;
+
+        gainNode = audioContext.createGain();
+        gainNode.connect(audioContext.destination);
+        gainNode.gain.value = 0.1;
 
         draw();
     });
@@ -258,6 +345,8 @@ The above note comes from https://alexanderell.is/posts/tuner/tuner.js
     />
     <canvas bind:this={canvas} id="visualization" width="500"> </canvas>
 </div>
+
+<button onclick={toggleChordsPlaying} type="button">Play chords</button>
 
 <style>
     p {
