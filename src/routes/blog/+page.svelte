@@ -13,7 +13,11 @@
     <ul>
         {#each data.posts as post}
             <li>
-                <a href={post.path}>{post.meta.title}</a>
+                <article>
+                    <time datetime="">{post.meta.created}</time>
+                    <h2><a href={post.path}>{post.meta.title}</a></h2>
+                    <p>{post.meta.description}</p>
+                </article>
             </li>
         {/each}
     </ul>
@@ -27,5 +31,25 @@
 
     nav {
         margin-top: 1rem;
+    }
+
+    article {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 2rem;
+        transition: 0.1s all;
+    }
+
+    article:hover {
+        padding-left: 12px;
+    }
+
+    a {
+        text-decoration: none;
+        color: black;
+    }
+
+    p {
+        margin-top: 0;
     }
 </style>

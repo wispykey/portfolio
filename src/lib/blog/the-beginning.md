@@ -1,6 +1,7 @@
 ---
 title: The beginning
 created: "Tue, Aug 18 2026"
+description: ""
 ---
 
 In the past I have started many projects, but finished few. 

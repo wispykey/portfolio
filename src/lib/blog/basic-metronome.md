@@ -1,9 +1,8 @@
 ---
 title: "Creating a basic metronome using Web Audio API"
 created: "Thurs, Aug 20 2026"
+description: "How do we schedule audio samples to play on every beat?"
 ---
-
-How do we schedule an audio sample every beat? This question was the primary problem in this simple project.
 
 My first naive approach was to use `setTimeout`:
 ```js

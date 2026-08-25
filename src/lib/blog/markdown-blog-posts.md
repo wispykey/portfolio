@@ -1,6 +1,7 @@
 ---
-title: "Converting markdown to HTML for blog posts"
+title: "Converting markdown to HTML using mdsvex"
 created: "Weds, Aug 19 2026"
+description: "How can we structure a project to support markdown-based blog posts?"
 ---
 
 
