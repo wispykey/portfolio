@@ -7,6 +7,7 @@
     } from "./chord-progressions";
     import { intepretPitch } from "./pitch-detection";
     import { BarlineType, Factory } from "vexflow";
+    import { note } from "tonal";
 
     let audioContext = new AudioContext();
     let analyser = audioContext.createAnalyser();
@@ -160,9 +161,21 @@
                     : measureWidth,
             );
 
-            const staveVoices = chord.map((note, i) => {
-                return score.voice(score.notes(`${note}/w`));
-            });
+            // const staveVoices = chord.map((note, i) => {
+            //     return score.voice(score.notes(`${note}/w`));
+            // });
+
+            // Putting all notes in a single voice improves rendering output
+            // and is OK since, using whole notes, we won't need stems in different directions
+            const noteString =
+                "(" +
+                chord.reduce((acc, note, i) => {
+                    return acc + (i > 0 ? " " : "") + `${note}`;
+                }, "") +
+                ")/w";
+
+            console.log(noteString);
+            const staveVoices = [score.voice(score.notes(noteString))];
 
             if (i === 0) {
                 stave.addTimeSignature("4/4");
