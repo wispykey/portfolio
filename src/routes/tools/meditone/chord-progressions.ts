@@ -9,7 +9,7 @@ const customTriadVoicings = {
 export const i_bVI_bIII_bVII = ["Im", "bVI", "bIII", "bVII"];
 
 
-export function createChordProgression(romanNumerals: string[]): number[][] {
+export function createChordProgression(romanNumerals: string[]): ChordProgression {
     const chordNames = Progression.fromRomanNumerals("Bb", romanNumerals);
 
     let last: string[] | null = null;
@@ -30,11 +30,20 @@ export function createChordProgression(romanNumerals: string[]): number[][] {
         return v;
     })
 
-    const notes = voicings.map((voicing) => {
+    const frequencies = voicings.map((voicing) => {
         return voicing.map((noteName) => {
             return Note.freq(noteName)!;
         });
     });
 
-    return notes;
+    return {
+        asNotes: voicings,
+        asFrequencies: frequencies
+    };
+}
+
+
+export interface ChordProgression {
+    asNotes: string[][],
+    asFrequencies: number[][]
 }

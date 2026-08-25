@@ -3,8 +3,17 @@
     import {
         createChordProgression,
         i_bVI_bIII_bVII,
+        type ChordProgression,
     } from "./chord-progressions";
     import { intepretPitch } from "./pitch-detection";
+    import {
+        BarlineType,
+        EasyScore,
+        Factory,
+        Formatter,
+        StaveConnector,
+        Voice,
+    } from "vexflow";
 
     let audioContext = new AudioContext();
     let analyser = audioContext.createAnalyser();
@@ -27,7 +36,7 @@
     const activeOscillators: OscillatorNode[] = [];
 
     // Frequencies, not chord names
-    let chordProgression: number[][] = [];
+    let chordProgression: ChordProgression;
     const lookahead = 25.0;
     const scheduleAheadTime = 0.15;
     const tempo = 60;
@@ -37,6 +46,11 @@
     let currentChordInProgression = 0;
 
     let gainNode: GainNode;
+
+    let vexflowOutputElementId = "vexflow";
+    let vexFlowOutputWidth = 800;
+    // For time signature and key signature, approximately
+    const FIRST_MEASURE_EXTRA_WIDTH = 50;
 
     navigator.mediaDevices
         .getUserMedia({
@@ -107,11 +121,73 @@
         canvasContext.stroke();
     }
 
+    function renderScore() {
+        let x = 0;
+        let y = 0;
+        const measureWidth =
+            (vexFlowOutputWidth - FIRST_MEASURE_EXTRA_WIDTH) / 4;
+
+        const factory = new Factory({
+            renderer: {
+                elementId: vexflowOutputElementId,
+                width: 800,
+                height: 200,
+            },
+        });
+        const formatter = factory.Formatter();
+
+        function makeStave(width: number) {
+            let stave = factory.Stave({
+                x: x,
+                y: y,
+                width: width,
+            });
+            x += width;
+            return stave;
+        }
+
+        const score = factory.EasyScore();
+        chordProgression.asNotes.map((chord, i) => {
+            /* Very simplified
+            Assume voice leading is OK, always first note as bottom voice, second note as middle, etc.
+            Only 4/4, all whole notes.
+            */
+
+            // makeStave (which wraps factory.Stave() is picky about timing!
+            // It MUST be called immediately before each score.voice(score.notes(...)), or else the voices won't bind to the measures in sequence
+            // Previously tried creating all voices before creating any staves, which resulting in MissingStave errors
+            // Think of the stave as a pointer, which is moved forward every time factory.Stave() is called
+            const stave = makeStave(
+                i === 0
+                    ? measureWidth + FIRST_MEASURE_EXTRA_WIDTH
+                    : measureWidth,
+            );
+
+            const staveVoices = chord.map((note, i) => {
+                return score.voice(score.notes(`${note}/w`));
+            });
+
+            if (i === 0) {
+                stave.addTimeSignature("4/4");
+                stave.addClef("treble");
+            }
+
+            if (i === chordProgression.asNotes.length - 1) {
+                stave.setEndBarType(BarlineType.SINGLE);
+            }
+
+            formatter.joinVoices(staveVoices).formatToStave(staveVoices, stave);
+        });
+
+        factory.draw();
+    }
+
     function draw() {
         animFrameID = requestAnimationFrame(draw);
 
         updatePitch();
         visualize();
+        renderScore();
     }
 
     function scheduler() {
@@ -166,9 +242,11 @@
 
     function scheduleChord(time: number) {
         currentChordInProgression =
-            (currentChordInProgression + 1) % chordProgression.length;
+            (currentChordInProgression + 1) %
+            chordProgression.asFrequencies.length;
 
-        const currentChord = chordProgression[currentChordInProgression];
+        const currentChord =
+            chordProgression.asFrequencies[currentChordInProgression];
 
         activeOscillators[0].frequency.setValueAtTime(currentChord[0], time);
         activeOscillators[1].frequency.setValueAtTime(currentChord[1], time);
@@ -210,30 +288,6 @@
     });
 </script>
 
-<!-- 
-The MIT License (MIT) Copyright (c) 2014 Chris Wilson Permission is hereby
-granted, free of charge, to any person obtaining a copy of this software and
-associated documentation files (the "Software"), to deal in the Software without
-restriction, including without limitation the rights to use, copy, modify,
-merge, publish, distribute, sublicense, and/or sell copies of the Software, and
-to permit persons to whom the Software is furnished to do so, subject to the
-following conditions: The above copyright notice and this permission notice
-shall be included in all copies or substantial portions of the Software. THE
-SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
-
-Note:
-autoCorrelate comes from https://github.com/cwilso/PitchDetect/pull/23 with the
-above license.
-
-Note:
-The above note comes from https://alexanderell.is/posts/tuner/tuner.js
- -->
-
 <p>{displayedValue}</p>
 
 <div class="controls">
@@ -249,6 +303,7 @@ The above note comes from https://alexanderell.is/posts/tuner/tuner.js
     />
     <canvas bind:this={canvas} id="visualization" width="500"> </canvas>
     <button onclick={toggleChordsPlaying} type="button">Play chords</button>
+    <svg id={vexflowOutputElementId} width={vexFlowOutputWidth}></svg>
 </div>
 
 <style>
