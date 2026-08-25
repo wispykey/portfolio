@@ -6,14 +6,7 @@
         type ChordProgression,
     } from "./chord-progressions";
     import { intepretPitch } from "./pitch-detection";
-    import {
-        BarlineType,
-        EasyScore,
-        Factory,
-        Formatter,
-        StaveConnector,
-        Voice,
-    } from "vexflow";
+    import { BarlineType, Factory } from "vexflow";
 
     let audioContext = new AudioContext();
     let analyser = audioContext.createAnalyser();
@@ -28,7 +21,7 @@
     let displayedValue = $state(NO_INPUT);
     let detectedValue = $state(NO_INPUT);
 
-    let smoothingFrameThreshold = $state(30);
+    const smoothingFrameThreshold = 20;
     let currSustainedFrames = 0;
 
     let animFrameID = 0;
@@ -299,19 +292,9 @@
 <p>{displayedValue}</p>
 
 <div class="controls">
-    <label for="sensitivity"
-        >Required duration: {smoothingFrameThreshold} frames</label
-    >
-    <input
-        name="sensitivity"
-        type="range"
-        min="0"
-        max="60"
-        bind:value={smoothingFrameThreshold}
-    />
     <canvas bind:this={canvas} id="visualization" width="500"> </canvas>
-    <button onclick={toggleChordsPlaying} type="button">Play chords</button>
     <svg id={vexflowOutputElementId} width={vexFlowOutputWidth}></svg>
+    <button onclick={toggleChordsPlaying} type="button">Play chords</button>
 </div>
 
 <style>
@@ -325,5 +308,9 @@
         flex-direction: column;
         align-items: center;
         gap: 1rem;
+    }
+
+    canvas {
+        margin: 2rem;
     }
 </style>
