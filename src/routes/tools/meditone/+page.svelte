@@ -35,8 +35,11 @@
 
     const activeOscillators: OscillatorNode[] = [];
 
-    // Frequencies, not chord names
-    let chordProgression: ChordProgression;
+    let chordProgression: ChordProgression = $state({
+        asNotes: [],
+        asFrequencies: [],
+    });
+
     const lookahead = 25.0;
     const scheduleAheadTime = 0.15;
     const tempo = 60;
@@ -124,13 +127,14 @@
     function renderScore() {
         let x = 0;
         let y = 0;
+        // Must subtract 1 to reserve space for end bar line
         const measureWidth =
-            (vexFlowOutputWidth - FIRST_MEASURE_EXTRA_WIDTH) / 4;
+            (vexFlowOutputWidth - FIRST_MEASURE_EXTRA_WIDTH - 1) / 4;
 
         const factory = new Factory({
             renderer: {
                 elementId: vexflowOutputElementId,
-                width: 800,
+                width: vexFlowOutputWidth,
                 height: 200,
             },
         });
@@ -153,9 +157,9 @@
             Only 4/4, all whole notes.
             */
 
-            // makeStave (which wraps factory.Stave() is picky about timing!
+            // makeStave (which wraps a call to factory.Stave()) is picky about timing!
             // It MUST be called immediately before each score.voice(score.notes(...)), or else the voices won't bind to the measures in sequence
-            // Previously tried creating all voices before creating any staves, which resulting in MissingStave errors
+            // Previously tried creating all voices before creating any staves, which resulted in MissingStave errors
             // Think of the stave as a pointer, which is moved forward every time factory.Stave() is called
             const stave = makeStave(
                 i === 0
@@ -187,7 +191,6 @@
 
         updatePitch();
         visualize();
-        renderScore();
     }
 
     function scheduler() {
@@ -285,6 +288,11 @@
     onDestroy(() => {
         cancelAnimationFrame(animFrameID);
         audioContext.close();
+    });
+
+    $effect(() => {
+        // Re-render when chord progression changes
+        renderScore();
     });
 </script>
 
