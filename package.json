@@ -19,7 +19,11 @@
 		"mdsvex": "^0.12.8",
 		"svelte": "^5.56.1",
 		"svelte-check": "^4.6.0",
+		"tonal": "^6.4.3",
 		"typescript": "^6.0.3",
 		"vite": "^8.0.16"
+	},
+	"dependencies": {
+		"vexflow": "^5.0.0"
 	}
 }

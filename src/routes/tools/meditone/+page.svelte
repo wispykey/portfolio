@@ -1,5 +1,19 @@
 <script lang="ts">
     import { onDestroy, onMount } from "svelte";
+    import {
+        createChordProgression,
+        i_bVI_bIII_bVII,
+        type ChordProgression,
+    } from "./chord-progressions";
+    import { intepretPitch } from "./pitch-detection";
+    import {
+        BarlineType,
+        EasyScore,
+        Factory,
+        Formatter,
+        StaveConnector,
+        Voice,
+    } from "vexflow";
 
     let audioContext = new AudioContext();
     let analyser = audioContext.createAnalyser();
@@ -19,6 +33,28 @@
 
     let animFrameID = 0;
 
+    const activeOscillators: OscillatorNode[] = [];
+
+    let chordProgression: ChordProgression = $state({
+        asNotes: [],
+        asFrequencies: [],
+    });
+
+    const lookahead = 25.0;
+    const scheduleAheadTime = 0.15;
+    const tempo = 60;
+    let isChordsPlaying = $state(false);
+    let nextChordTime = 0.0;
+    let timerID = -1;
+    let currentChordInProgression = 0;
+
+    let gainNode: GainNode;
+
+    let vexflowOutputElementId = "vexflow";
+    let vexFlowOutputWidth = 800;
+    // For time signature and key signature, approximately
+    const FIRST_MEASURE_EXTRA_WIDTH = 50;
+
     navigator.mediaDevices
         .getUserMedia({
             video: false,
@@ -34,21 +70,15 @@
             streamNode.connect(audioContext.destination);
         });
 
-    function detectPitch() {
+    function updatePitch() {
         const buffer = new Float32Array(analyser.fftSize);
         // This writes in-place
         analyser.getFloatTimeDomainData(buffer);
 
-        let pitchDetectionValue = autoCorrelate(
-            buffer,
-            audioContext.sampleRate,
-        );
-
-        let displayValue =
-            noteStrings[noteFromPitch(pitchDetectionValue) % 12] ?? NO_INPUT;
-
         // Always update the detected value
-        detectedValue = displayValue;
+        const displayValue = intepretPitch(buffer, audioContext.sampleRate);
+
+        detectedValue = displayValue ?? NO_INPUT;
         // But only update the displayed value when
         if (displayedValue !== detectedValue) {
             if (currSustainedFrames < smoothingFrameThreshold) {
@@ -94,121 +124,163 @@
         canvasContext.stroke();
     }
 
+    function renderScore() {
+        let x = 0;
+        let y = 0;
+        // Must subtract 1 to reserve space for end bar line
+        const measureWidth =
+            (vexFlowOutputWidth - FIRST_MEASURE_EXTRA_WIDTH - 1) / 4;
+
+        const factory = new Factory({
+            renderer: {
+                elementId: vexflowOutputElementId,
+                width: vexFlowOutputWidth,
+                height: 200,
+            },
+        });
+        const formatter = factory.Formatter();
+
+        function makeStave(width: number) {
+            let stave = factory.Stave({
+                x: x,
+                y: y,
+                width: width,
+            });
+            x += width;
+            return stave;
+        }
+
+        const score = factory.EasyScore();
+        chordProgression.asNotes.map((chord, i) => {
+            /* Very simplified
+            Assume voice leading is OK, always first note as bottom voice, second note as middle, etc.
+            Only 4/4, all whole notes.
+            */
+
+            // makeStave (which wraps a call to factory.Stave()) is picky about timing!
+            // It MUST be called immediately before each score.voice(score.notes(...)), or else the voices won't bind to the measures in sequence
+            // Previously tried creating all voices before creating any staves, which resulted in MissingStave errors
+            // Think of the stave as a pointer, which is moved forward every time factory.Stave() is called
+            const stave = makeStave(
+                i === 0
+                    ? measureWidth + FIRST_MEASURE_EXTRA_WIDTH
+                    : measureWidth,
+            );
+
+            const staveVoices = chord.map((note, i) => {
+                return score.voice(score.notes(`${note}/w`));
+            });
+
+            if (i === 0) {
+                stave.addTimeSignature("4/4");
+                stave.addClef("treble");
+            }
+
+            if (i === chordProgression.asNotes.length - 1) {
+                stave.setEndBarType(BarlineType.SINGLE);
+            }
+
+            formatter.joinVoices(staveVoices).formatToStave(staveVoices, stave);
+        });
+
+        factory.draw();
+    }
+
     function draw() {
         animFrameID = requestAnimationFrame(draw);
 
-        detectPitch();
+        updatePitch();
         visualize();
     }
 
-    // From PitchDetect: https://github.com/cwilso/PitchDetect/blob/master/js/pitchdetect.js
-    var noteStrings = [
-        "C",
-        "C#",
-        "D",
-        "D#",
-        "E",
-        "F",
-        "F#",
-        "G",
-        "G#",
-        "A",
-        "A#",
-        "B",
-    ];
-    function noteFromPitch(frequency: number) {
-        var noteNum = 12 * (Math.log(frequency / 440) / Math.log(2));
-        return Math.round(noteNum) + 69;
+    function scheduler() {
+        while (nextChordTime < audioContext.currentTime + scheduleAheadTime) {
+            scheduleChord(nextChordTime);
+            nextChord();
+        }
+
+        timerID = setTimeout(scheduler, lookahead);
     }
 
-    // From https://github.com/cwilso/PitchDetect/pull/23
-    function autoCorrelate(buffer: Float32Array, sampleRate: number) {
-        // Perform a quick root-mean-square to see if we have enough signal
-        var SIZE = buffer.length;
-        var sumOfSquares = 0;
+    function nextChord() {
+        const secondsPerChord = (60.0 / tempo) * 4;
 
-        for (var i = 0; i < SIZE; i++) {
-            var val = buffer[i];
-            sumOfSquares += val * val;
-        }
+        nextChordTime += secondsPerChord;
+    }
 
-        var rootMeanSquare = Math.sqrt(sumOfSquares / SIZE);
-        if (rootMeanSquare < 0.01) {
-            return -1;
-        }
+    function startOscillator(
+        freq: number = 440.0,
+        type: OscillatorType = "sine",
+    ) {
+        const osc = audioContext.createOscillator();
 
-        // Find a range in the buffer where the values are below a given threshold.
-        var r1 = 0;
-        var r2 = SIZE - 1;
-        var threshold = 0.2;
+        // Gain node should be connected to destination already
+        osc.connect(gainNode);
 
-        // Walk up for r1
-        for (var i = 0; i < SIZE / 2; i++) {
-            if (Math.abs(buffer[i]) < threshold) {
-                r1 = i;
-                break;
+        osc.type = type;
+        osc.frequency.value = freq;
+
+        osc.start();
+
+        return osc;
+    }
+
+    function stopAllOscillators() {
+        activeOscillators.map((osc) => {
+            osc.stop();
+        });
+    }
+
+    function createOscillators() {
+        stopAllOscillators();
+
+        const osc1 = startOscillator(220.0);
+        const osc2 = startOscillator(262.0);
+        const osc3 = startOscillator(330.0);
+
+        activeOscillators[0] = osc1;
+        activeOscillators[1] = osc2;
+        activeOscillators[2] = osc3;
+    }
+
+    function scheduleChord(time: number) {
+        currentChordInProgression =
+            (currentChordInProgression + 1) %
+            chordProgression.asFrequencies.length;
+
+        const currentChord =
+            chordProgression.asFrequencies[currentChordInProgression];
+
+        activeOscillators[0].frequency.setValueAtTime(currentChord[0], time);
+        activeOscillators[1].frequency.setValueAtTime(currentChord[1], time);
+        activeOscillators[2].frequency.setValueAtTime(currentChord[2], time);
+    }
+
+    function toggleChordsPlaying() {
+        isChordsPlaying = !isChordsPlaying;
+        if (isChordsPlaying) {
+            if (audioContext.state === "suspended") {
+                audioContext.resume();
             }
+
+            nextChordTime = audioContext.currentTime;
+
+            createOscillators();
+            scheduler();
+        } else {
+            clearTimeout(timerID);
+            stopAllOscillators();
         }
-
-        // Walk down for r2
-        for (var i = 1; i < SIZE / 2; i++) {
-            if (Math.abs(buffer[SIZE - i]) < threshold) {
-                r2 = SIZE - i;
-                break;
-            }
-        }
-
-        // Trim the buffer to these ranges and update SIZE.
-        buffer = buffer.slice(r1, r2);
-        SIZE = buffer.length;
-
-        // Create a new array of the sums of offsets to do the autocorrelation
-        var c = new Array(SIZE).fill(0);
-        // For each potential offset, calculate the sum of each buffer value times its offset value
-        for (let i = 0; i < SIZE; i++) {
-            for (let j = 0; j < SIZE - i; j++) {
-                c[i] = c[i] + buffer[j] * buffer[j + i];
-            }
-        }
-
-        // Find the last index where that value is greater than the next one (the dip)
-        var d = 0;
-        while (c[d] > c[d + 1]) {
-            d++;
-        }
-
-        // Iterate from that index through the end and find the maximum sum
-        var maxValue = -1;
-        var maxIndex = -1;
-        for (var i = d; i < SIZE; i++) {
-            if (c[i] > maxValue) {
-                maxValue = c[i];
-                maxIndex = i;
-            }
-        }
-
-        var T0 = maxIndex;
-
-        // Not as sure about this part, don't @ me
-        // From the original author:
-        // interpolation is parabolic interpolation. It helps with precision. We suppose that a parabola pass through the
-        // three points that comprise the peak. 'a' and 'b' are the unknowns from the linear equation system and b/(2a) is
-        // the "error" in the abscissa. Well x1,x2,x3 should be y1,y2,y3 because they are the ordinates.
-        var x1 = c[T0 - 1];
-        var x2 = c[T0];
-        var x3 = c[T0 + 1];
-
-        var a = (x1 + x3 - 2 * x2) / 2;
-        var b = (x3 - x1) / 2;
-        if (a) {
-            T0 = T0 - b / (2 * a);
-        }
-
-        return sampleRate / T0;
     }
 
     onMount(() => {
         canvasContext = canvas.getContext("2d")!;
+
+        gainNode = audioContext.createGain();
+        gainNode.connect(audioContext.destination);
+        gainNode.gain.value = 0.1;
+
+        chordProgression = createChordProgression(i_bVI_bIII_bVII);
 
         draw();
     });
@@ -217,31 +289,12 @@
         cancelAnimationFrame(animFrameID);
         audioContext.close();
     });
+
+    $effect(() => {
+        // Re-render when chord progression changes
+        renderScore();
+    });
 </script>
-
-<!-- 
-The MIT License (MIT) Copyright (c) 2014 Chris Wilson Permission is hereby
-granted, free of charge, to any person obtaining a copy of this software and
-associated documentation files (the "Software"), to deal in the Software without
-restriction, including without limitation the rights to use, copy, modify,
-merge, publish, distribute, sublicense, and/or sell copies of the Software, and
-to permit persons to whom the Software is furnished to do so, subject to the
-following conditions: The above copyright notice and this permission notice
-shall be included in all copies or substantial portions of the Software. THE
-SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
-INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
-PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
-
-Note:
-autoCorrelate comes from https://github.com/cwilso/PitchDetect/pull/23 with the
-above license.
-
-Note:
-The above note comes from https://alexanderell.is/posts/tuner/tuner.js
- -->
 
 <p>{displayedValue}</p>
 
@@ -257,6 +310,8 @@ The above note comes from https://alexanderell.is/posts/tuner/tuner.js
         bind:value={smoothingFrameThreshold}
     />
     <canvas bind:this={canvas} id="visualization" width="500"> </canvas>
+    <button onclick={toggleChordsPlaying} type="button">Play chords</button>
+    <svg id={vexflowOutputElementId} width={vexFlowOutputWidth}></svg>
 </div>
 
 <style>
