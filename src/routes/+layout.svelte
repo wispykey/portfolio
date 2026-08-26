@@ -20,7 +20,9 @@
 	</ul>
 </nav>
 
-<main>{@render children()}</main>
+<div class="main-container">
+	<main>{@render children()}</main>
+</div>
 
 <style>
 	@import "./cormeau-reset.css";
@@ -50,5 +52,14 @@
 
 	main {
 		padding: 0.5rem 2rem;
+		/* TODO: Responsive widths */
+		width: 1000px;
+	}
+
+	.main-container {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
 	}
 </style>
