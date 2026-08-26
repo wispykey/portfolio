@@ -2,12 +2,12 @@
     import { onDestroy, onMount } from "svelte";
     import {
         createChordProgression,
-        i_bVI_bIII_bVII,
         type ChordProgression,
+        CustomChordProgression,
+        CustomVoicingDictionary,
     } from "./chord-progressions";
     import { intepretPitch } from "./pitch-detection";
     import { BarlineType, Factory } from "vexflow";
-    import { note } from "tonal";
 
     let audioContext = new AudioContext();
     let analyser = audioContext.createAnalyser();
@@ -24,15 +24,30 @@
 
     const smoothingFrameThreshold = 20;
     let currSustainedFrames = 0;
-
     let animFrameID = 0;
 
     const activeOscillators: OscillatorNode[] = [];
 
-    let chordProgression: ChordProgression = $state({
-        asNotes: [],
-        asFrequencies: [],
-    });
+    let chordProgressionAsRomanNumerals: string[] = $state([]);
+    let voicingDictionary: Record<string, string[]> = $state(
+        CustomVoicingDictionary.openFifth,
+    );
+
+    // Root positions for compact, predictable display
+    let rootChordProgression: ChordProgression = $derived(
+        createChordProgression(chordProgressionAsRomanNumerals),
+    );
+    // Voiced for better listening experience
+    let voicedChordProgression: ChordProgression = $derived(
+        createChordProgression(
+            chordProgressionAsRomanNumerals,
+            voicingDictionary,
+            {
+                minNote: "Gb2",
+                maxNote: "Gb4",
+            },
+        ),
+    );
 
     const lookahead = 25.0;
     const scheduleAheadTime = 0.15;
@@ -145,7 +160,7 @@
         }
 
         const score = factory.EasyScore();
-        chordProgression.asNotes.map((chord, i) => {
+        rootChordProgression.asNotes.map((chord, i) => {
             /* Very simplified
             Assume voice leading is OK, always first note as bottom voice, second note as middle, etc.
             Only 4/4, all whole notes.
@@ -182,7 +197,7 @@
                 stave.addClef("treble");
             }
 
-            if (i === chordProgression.asNotes.length - 1) {
+            if (i === rootChordProgression.asNotes.length - 1) {
                 stave.setEndBarType(BarlineType.SINGLE);
             }
 
@@ -252,10 +267,10 @@
     function scheduleChord(time: number) {
         currentChordInProgression =
             (currentChordInProgression + 1) %
-            chordProgression.asFrequencies.length;
+            voicedChordProgression.asFrequencies.length;
 
         const currentChord =
-            chordProgression.asFrequencies[currentChordInProgression];
+            voicedChordProgression.asFrequencies[currentChordInProgression];
 
         activeOscillators[0].frequency.setValueAtTime(currentChord[0], time);
         activeOscillators[1].frequency.setValueAtTime(currentChord[1], time);
@@ -286,7 +301,8 @@
         gainNode.connect(audioContext.destination);
         gainNode.gain.value = 0.1;
 
-        chordProgression = createChordProgression(i_bVI_bIII_bVII);
+        chordProgressionAsRomanNumerals =
+            CustomChordProgression.Im_bVI_bIII_bVII;
 
         draw();
     });
