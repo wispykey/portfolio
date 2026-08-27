@@ -1,5 +1,6 @@
 <script lang="ts">
     import { onDestroy, onMount } from "svelte";
+    import { TempoMarkings } from "./tempo-markings";
 
     // Loading samples based on Web Audio API docs instead of using <audio> elements
     const METRONOME_HIGH_CLICK_FILE_PATH = "/metronome_click_F4.wav";
@@ -14,7 +15,7 @@
     const MAX_SUBDIVISION = 4;
     const MIN_BEATS_PER_MEASURE = 1;
     const MAX_BEATS_PER_MEASURE = 8;
-    const baseTempo = 60;
+    const baseBpm = 60;
 
     // Web Audio API scheduler variables
     const lookahead = 25.0;
@@ -23,14 +24,18 @@
     let audioContext: AudioContext;
 
     // Metronome state
-    let tempo = $state(baseTempo);
+    let bpm = $state(baseBpm);
     let isPlaying = $state(false);
     let timerID: number;
     let nextNoteTime = 0.0;
 
     // As tempo gets faster, longer schedule-ahead times begin to feel sluggish; adjust dynamically
-    let scheduleAheadTime = $derived(
-        0.1 - 0.0013 * Math.max(0, tempo - baseTempo),
+    let scheduleAheadTime = $derived(0.1 - 0.0013 * Math.max(0, bpm - baseBpm));
+
+    let tempoMarking = $derived(
+        Object.keys(TempoMarkings).findLast(
+            (tempoMarking) => bpm >= TempoMarkings[tempoMarking],
+        ),
     );
 
     // Subdivided beat is just the total number of clicks
@@ -38,7 +43,7 @@
     let numBeatsPerMeasure = $state(4);
 
     let subdivision = $state(1);
-    let subdividedTempo = $derived(tempo * subdivision);
+    let subdividedTempo = $derived(bpm * subdivision);
     let subdividedBeatsPerMeasure = $derived(numBeatsPerMeasure * subdivision);
 
     let subdividedBeatMarkers = $derived(
@@ -132,7 +137,8 @@
     </div>
 
     <section class="bpm-display">
-        <h2><strong>{tempo}</strong></h2>
+        <h2><strong>{bpm}</strong></h2>
+        <h3>{tempoMarking}</h3>
     </section>
 
     <input
@@ -140,7 +146,7 @@
         type="range"
         min={minTempo}
         max={maxTempo}
-        bind:value={tempo}
+        bind:value={bpm}
     />
 
     <form action="">
@@ -150,7 +156,6 @@
                 {#each { length: MAX_BEATS_PER_MEASURE - MIN_BEATS_PER_MEASURE + 1 }, i}
                     <label>
                         <input
-                            class="bpm"
                             type="radio"
                             name="beats"
                             value={i + 1}
@@ -167,7 +172,6 @@
                 {#each { length: MAX_SUBDIVISION - MIN_SUBDIVISION + 1 }, i}
                     <label>
                         <input
-                            class="bpm"
                             type="radio"
                             name="subdivision"
                             value={i + 1}
@@ -239,20 +243,24 @@
     }
 
     input.bpm {
+        width: 300px;
+    }
+
+    input[type="radio"] {
         /* Hide the default radio buttons, then style the  */
         display: none;
         /* color: white; */
     }
 
-    input.bpm + span {
+    input[type="radio"] + span {
         padding: 8px 16px;
         border-radius: 4px;
         background-color: #364153;
         color: white;
     }
 
-    input.bpm:checked + span {
-        background-color: gold;
+    input[type="radio"]:checked + span {
+        background-color: rgb(197, 88, 45);
         /* border: 50px solid black; */
     }
 
