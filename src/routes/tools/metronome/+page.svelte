@@ -17,8 +17,6 @@
     const MAX_BEATS_PER_MEASURE = 8;
     const baseBpm = 60;
 
-    const GAP_BETWEEN_BARS_IN_PERCENT = 2;
-
     // Web Audio API scheduler variables
     const lookahead = 25.0;
 
@@ -47,12 +45,6 @@
     let subdivision = $state(1);
     let subdividedTempo = $derived(bpm * subdivision);
     let subdividedBeatsPerMeasure = $derived(numBeatsPerMeasure * subdivision);
-
-    let subdividedBeatMarkers = $derived(
-        Array(subdividedBeatsPerMeasure)
-            .fill(false)
-            .map((_, i) => i === currentSubdividedBeatInMeasure),
-    );
 
     function scheduler() {
         while (nextNoteTime < audioContext.currentTime + scheduleAheadTime) {
@@ -122,19 +114,20 @@
     onDestroy(() => {
         clearTimeout(timerID);
     });
+
+    $effect(() => {});
 </script>
 
 <div class="container">
     <div class="metronome">
         <div class="visualization">
-            {#each { length: numBeatsPerMeasure }}
+            {#each { length: numBeatsPerMeasure }, i}
                 <div class="bar">
                     <div
-                        class="beat-bar"
-                        // style="width: {100 / numBeatsPerMeasure -
-                        //     (numBeatsPerMeasure !== 1
-                        //         ? GAP_BETWEEN_BARS_IN_PERCENT
-                        //         : 0)}%;"
+                        class="beat-bar {i ===
+                        Math.floor(currentSubdividedBeatInMeasure / subdivision)
+                            ? 'current-beat'
+                            : ''}"
                     ></div>
                     <div class="bar-subdivisions">
                         {#each { length: subdivision }}
@@ -318,6 +311,11 @@
         width: 100%;
         height: 30vh;
         border-radius: 8px;
+        transition: background 0.1s;
+    }
+
+    .current-beat {
+        background: rgb(159, 141, 187);
     }
 
     .bar-subdivision-dot {
