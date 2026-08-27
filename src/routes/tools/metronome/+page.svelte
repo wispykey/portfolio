@@ -10,8 +10,10 @@
     // Arbitrary tempo bounds
     const minTempo = 20;
     const maxTempo = 180;
-    const maxSubdivision = 4;
-    const maxBeatsPerMeasure = 8;
+    const MIN_SUBDIVISION = 1;
+    const MAX_SUBDIVISION = 4;
+    const MIN_BEATS_PER_MEASURE = 1;
+    const MAX_BEATS_PER_MEASURE = 8;
     const baseTempo = 60;
 
     // Web Audio API scheduler variables
@@ -116,10 +118,6 @@
 </script>
 
 <div class="main-container">
-    <section class="bpm-display">
-        <h2><strong>{tempo}</strong></h2>
-    </section>
-
     <div class="beat-visualization">
         <svg width="400" height="50">
             {#each subdividedBeatMarkers as marker, i}
@@ -133,29 +131,53 @@
         </svg>
     </div>
 
-    <input type="range" min={minTempo} max={maxTempo} bind:value={tempo} />
+    <section class="bpm-display">
+        <h2><strong>{tempo}</strong></h2>
+    </section>
+
+    <input
+        class="bpm"
+        type="range"
+        min={minTempo}
+        max={maxTempo}
+        bind:value={tempo}
+    />
 
     <form action="">
-        <label>
-            Beats Per Measure
-            <input
-                name="numBeatsPerMeasure"
-                type="number"
-                min={2}
-                max={maxBeatsPerMeasure}
-                bind:value={numBeatsPerMeasure}
-            />
-        </label>
-        <label>
+        <section>
+            Beats
+            <div class="buttons">
+                {#each { length: MAX_BEATS_PER_MEASURE - MIN_BEATS_PER_MEASURE + 1 }, i}
+                    <label>
+                        <input
+                            class="bpm"
+                            type="radio"
+                            name="beats"
+                            value={i + 1}
+                            bind:group={numBeatsPerMeasure}
+                        />
+                        <span>{i + 1}</span>
+                    </label>
+                {/each}
+            </div>
+        </section>
+        <section>
             Subdivision
-            <input
-                name="subdivision"
-                type="number"
-                min={1}
-                max={maxSubdivision}
-                bind:value={subdivision}
-            />
-        </label>
+            <div class="buttons">
+                {#each { length: MAX_SUBDIVISION - MIN_SUBDIVISION + 1 }, i}
+                    <label>
+                        <input
+                            class="bpm"
+                            type="radio"
+                            name="subdivision"
+                            value={i + 1}
+                            bind:group={subdivision}
+                        />
+                        <span>{i + 1}</span>
+                    </label>
+                {/each}
+            </div>
+        </section>
     </form>
 
     <button aria-label="play-button" onclick={togglePlaying}>
@@ -198,6 +220,7 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        /* background: black; */
     }
     .bpm-display {
         text-align: center;
@@ -205,15 +228,40 @@
     form {
         display: flex;
         flex-direction: column;
-        max-width: 300px;
+        /* max-width: 300px; */
         padding: 16px;
+        gap: 1rem;
+    }
+
+    .buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    input.bpm {
+        /* Hide the default radio buttons, then style the  */
+        display: none;
+        /* color: white; */
+    }
+
+    input.bpm + span {
+        padding: 8px 16px;
+        border-radius: 4px;
+        background-color: #364153;
+        color: white;
+    }
+
+    input.bpm:checked + span {
+        background-color: gold;
+        /* border: 50px solid black; */
     }
 
     form label {
         display: flex;
-        justify-content: space-between;
+        /* justify-content: space-between; */
         gap: 1rem;
     }
+
     h2 {
         margin-bottom: 0;
         padding: 0;
