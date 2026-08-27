@@ -128,13 +128,20 @@
     <div class="metronome">
         <div class="visualization">
             {#each { length: numBeatsPerMeasure }}
-                <div
-                    class="beat-bar"
-                    style="width: {100 / numBeatsPerMeasure -
-                        (numBeatsPerMeasure !== 1
-                            ? GAP_BETWEEN_BARS_IN_PERCENT
-                            : 0)}%"
-                ></div>
+                <div class="bar">
+                    <div
+                        class="beat-bar"
+                        // style="width: {100 / numBeatsPerMeasure -
+                        //     (numBeatsPerMeasure !== 1
+                        //         ? GAP_BETWEEN_BARS_IN_PERCENT
+                        //         : 0)}%;"
+                    ></div>
+                    <div class="bar-subdivisions">
+                        {#each { length: subdivision }}
+                            <div class="bar-subdivision-dot"></div>
+                        {/each}
+                    </div>
+                </div>
             {/each}
         </div>
         <section class="bpm-display">
@@ -296,11 +303,33 @@
         display: flex;
         justify-content: space-between;
         margin-bottom: 24px;
+        gap: 8px;
+    }
+
+    .bar {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
     }
 
     .beat-bar {
         background: rgb(70, 57, 131);
+        width: 100%;
         height: 30vh;
         border-radius: 8px;
+    }
+
+    .bar-subdivision-dot {
+        width: 4px;
+        height: 4px;
+        background-color: grey;
+        border-radius: 999px;
+    }
+
+    .bar-subdivisions {
+        display: flex;
+        gap: 2px;
+        justify-content: center;
     }
 </style>
