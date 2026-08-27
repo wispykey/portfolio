@@ -17,6 +17,8 @@
     const MAX_BEATS_PER_MEASURE = 8;
     const baseBpm = 60;
 
+    const GAP_BETWEEN_BARS_IN_PERCENT = 2;
+
     // Web Audio API scheduler variables
     const lookahead = 25.0;
 
@@ -122,109 +124,119 @@
     });
 </script>
 
-<div class="main-container">
-    <div class="beat-visualization">
-        <svg width="400" height="50">
-            {#each subdividedBeatMarkers as marker, i}
-                <circle
-                    r={marker ? 8 : 3}
-                    cx={(400 / subdividedBeatsPerMeasure) * (i + 0.5)}
-                    cy="25"
-                    fill={marker ? "green" : "black"}
-                ></circle>
+<div class="container">
+    <div class="metronome">
+        <div class="visualization">
+            {#each { length: numBeatsPerMeasure }}
+                <div
+                    class="beat-bar"
+                    style="width: {100 / numBeatsPerMeasure -
+                        (numBeatsPerMeasure !== 1
+                            ? GAP_BETWEEN_BARS_IN_PERCENT
+                            : 0)}%"
+                ></div>
             {/each}
-        </svg>
+        </div>
+        <section class="bpm-display">
+            <h2><strong>{bpm}</strong></h2>
+            <h3>{tempoMarking}</h3>
+        </section>
+
+        <input
+            class="bpm"
+            type="range"
+            min={minTempo}
+            max={maxTempo}
+            bind:value={bpm}
+        />
     </div>
+    <div class="settings">
+        <form action="">
+            <section>
+                Beats
+                <div class="buttons">
+                    {#each { length: MAX_BEATS_PER_MEASURE - MIN_BEATS_PER_MEASURE + 1 }, i}
+                        <label>
+                            <input
+                                type="radio"
+                                name="beats"
+                                value={i + 1}
+                                bind:group={numBeatsPerMeasure}
+                            />
+                            <span>{i + 1}</span>
+                        </label>
+                    {/each}
+                </div>
+            </section>
+            <section>
+                Subdivision
+                <div class="buttons">
+                    {#each { length: MAX_SUBDIVISION - MIN_SUBDIVISION + 1 }, i}
+                        <label>
+                            <input
+                                type="radio"
+                                name="subdivision"
+                                value={i + 1}
+                                bind:group={subdivision}
+                            />
+                            <span>{i + 1}</span>
+                        </label>
+                    {/each}
+                </div>
+            </section>
+        </form>
 
-    <section class="bpm-display">
-        <h2><strong>{bpm}</strong></h2>
-        <h3>{tempoMarking}</h3>
-    </section>
-
-    <input
-        class="bpm"
-        type="range"
-        min={minTempo}
-        max={maxTempo}
-        bind:value={bpm}
-    />
-
-    <form action="">
-        <section>
-            Beats
-            <div class="buttons">
-                {#each { length: MAX_BEATS_PER_MEASURE - MIN_BEATS_PER_MEASURE + 1 }, i}
-                    <label>
-                        <input
-                            type="radio"
-                            name="beats"
-                            value={i + 1}
-                            bind:group={numBeatsPerMeasure}
-                        />
-                        <span>{i + 1}</span>
-                    </label>
-                {/each}
-            </div>
-        </section>
-        <section>
-            Subdivision
-            <div class="buttons">
-                {#each { length: MAX_SUBDIVISION - MIN_SUBDIVISION + 1 }, i}
-                    <label>
-                        <input
-                            type="radio"
-                            name="subdivision"
-                            value={i + 1}
-                            bind:group={subdivision}
-                        />
-                        <span>{i + 1}</span>
-                    </label>
-                {/each}
-            </div>
-        </section>
-    </form>
-
-    <button aria-label="play-button" onclick={togglePlaying}>
-        <svg width="100" height="100">
-            <circle
-                r="40"
-                stroke="black"
-                stroke-width="2"
-                fill="black"
-                cx="52"
-                cy="52"
-            ></circle>
-            <circle r="40" fill="green" cx="50" cy="50"></circle>
-            <circle
-                r="40"
-                stroke="black"
-                stroke-width="2"
-                fill="none"
-                cx="50"
-                cy="50"
-            ></circle>
-
-            {#if !isPlaying}
-                <path
-                    d="M 43 35 v 30 l 20 -15 Z"
-                    fill="none"
+        <button aria-label="play-button" onclick={togglePlaying}>
+            <svg width="100" height="100">
+                <circle
+                    r="40"
                     stroke="black"
                     stroke-width="2"
-                />
-            {:else}
-                <path d="M 43 40 v 20 h 4 v -20 Z" fill="black"></path>
-                <path d="M 57 40 v 20 h -4 v -20 Z" fill="black"></path>
-            {/if}
-        </svg>
-    </button>
+                    fill="black"
+                    cx="52"
+                    cy="52"
+                ></circle>
+                <circle r="40" fill="green" cx="50" cy="50"></circle>
+                <circle
+                    r="40"
+                    stroke="black"
+                    stroke-width="2"
+                    fill="none"
+                    cx="50"
+                    cy="50"
+                ></circle>
+
+                {#if !isPlaying}
+                    <path
+                        d="M 43 35 v 30 l 20 -15 Z"
+                        fill="black"
+                        stroke="black"
+                        stroke-width="2"
+                    />
+                {:else}
+                    <path d="M 43 40 v 20 h 4 v -20 Z" fill="black"></path>
+                    <path d="M 57 40 v 20 h -4 v -20 Z" fill="black"></path>
+                {/if}
+            </svg>
+        </button>
+    </div>
 </div>
 
 <style>
-    .main-container {
+    .container {
+        margin-top: 50px;
         display: flex;
         flex-direction: column;
         align-items: center;
-        /* background: black; */
+    }
+    .metronome {
+        text-align: center;
+        min-width: 500px;
+    }
+    .settings {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
     .bpm-display {
         text-align: center;
@@ -232,7 +244,6 @@
     form {
         display: flex;
         flex-direction: column;
-        /* max-width: 300px; */
         padding: 16px;
         gap: 1rem;
     }
@@ -247,9 +258,7 @@
     }
 
     input[type="radio"] {
-        /* Hide the default radio buttons, then style the  */
         display: none;
-        /* color: white; */
     }
 
     input[type="radio"] + span {
@@ -261,12 +270,10 @@
 
     input[type="radio"]:checked + span {
         background-color: rgb(197, 88, 45);
-        /* border: 50px solid black; */
     }
 
     form label {
         display: flex;
-        /* justify-content: space-between; */
         gap: 1rem;
     }
 
@@ -283,5 +290,17 @@
     button {
         background: none;
         border: none;
+    }
+
+    .visualization {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 24px;
+    }
+
+    .beat-bar {
+        background: rgb(70, 57, 131);
+        height: 30vh;
+        border-radius: 8px;
     }
 </style>
