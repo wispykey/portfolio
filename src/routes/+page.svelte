@@ -1,3 +1,3 @@
-<h1>wispykey.com</h1>
+<h1>Hi</h1>
 
-<p>What should I put here?</p>
+<p>I like sound, technology, and games.</p>
