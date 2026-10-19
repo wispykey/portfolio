@@ -308,11 +308,11 @@
             CustomChordProgression.Im_bVI_bIII_bVII;
 
         draw();
-    });
 
-    onDestroy(() => {
-        cancelAnimationFrame(animFrameID);
-        audioContext.close();
+        return () => {
+            cancelAnimationFrame(animFrameID);
+            audioContext.close();
+        };
     });
 
     $effect(() => {
