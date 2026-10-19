@@ -1,0 +1,1 @@
+import{J as e,S as t,X as n,b as r}from"../chunks/D_Lx0Rzi.js";import"../chunks/xihTtKlq.js";import{n as i}from"../chunks/BelWyZaW.js";var a=n({load:()=>o});function o(){i(308,`/music`)}var s=t(`<h1>Hi</h1> <p>I like sound, technology, and games.</p>`,1);function c(t){var n=s();e(2),r(t,n)}export{c as component,a as universal};
