@@ -1,2 +1,0 @@
-import{J as e,S as t,b as n}from"../chunks/D_Lx0Rzi.js";import"../chunks/xihTtKlq.js";var r=t(`<h1>Contact</h1> <p>I am happy to chat about commissions and projects, rates, or just life in
-    general.</p> <p>Feel free to send me an email at <a href="mailto:wispykey@gmail.com">wispykey@gmail.com</a>.</p>`,1);function i(t){var i=r();e(4),n(t,i)}export{i as component};
