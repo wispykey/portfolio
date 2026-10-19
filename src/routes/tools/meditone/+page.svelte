@@ -60,21 +60,6 @@
     // For time signature and key signature, approximately
     const FIRST_MEASURE_EXTRA_WIDTH = 50;
 
-    navigator.mediaDevices
-        .getUserMedia({
-            video: false,
-            audio: {
-                echoCancellation: false,
-                noiseSuppression: false,
-                autoGainControl: false,
-            },
-        })
-        .then((stream) => {
-            const streamNode = audioContext.createMediaStreamSource(stream);
-            streamNode.connect(analyser);
-            streamNode.connect(audioContext.destination);
-        });
-
     function updatePitch() {
         const buffer = new Float32Array(analyser.fftSize);
         // This writes in-place
@@ -303,6 +288,21 @@
         gainNode = audioContext.createGain();
         gainNode.connect(audioContext.destination);
         gainNode.gain.value = 0.1;
+
+        navigator.mediaDevices
+            .getUserMedia({
+                video: false,
+                audio: {
+                    echoCancellation: false,
+                    noiseSuppression: false,
+                    autoGainControl: false,
+                },
+            })
+            .then((stream) => {
+                const streamNode = audioContext.createMediaStreamSource(stream);
+                streamNode.connect(analyser);
+                streamNode.connect(audioContext.destination);
+            });
 
         chordProgressionAsRomanNumerals =
             CustomChordProgression.Im_bVI_bIII_bVII;
