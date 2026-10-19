@@ -1,5 +1,6 @@
 import { redirect } from "@sveltejs/kit";
+import { resolve } from '$app/paths';
 
 export function load() {
-    redirect(308, `${import.meta.env.BASE_URL}music`)
+    redirect(308, resolve('/music'));
 }

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import favicon from "$lib/assets/favicon.svg";
+	import { resolve } from "$app/paths";
 
 	let { children } = $props();
 </script>
@@ -11,12 +12,9 @@
 
 <nav>
 	<ul>
-		<!-- <li><a href="/">Home</a></li> -->
-		<li><a href={`${import.meta.env.BASE_URL}music`}>Music</a></li>
-		<li><a href={`${import.meta.env.BASE_URL}projects`}>Projects</a></li>
-		<!-- <li><a href="/tools">Tools</a></li> -->
-		<!-- <li><a href="/blog">Blog</a></li> -->
-		<li><a href={`${import.meta.env.BASE_URL}contact`}>Contact</a></li>
+		<li><a href={resolve("/music")}>Music</a></li>
+		<li><a href={resolve("/projects")}>Projects</a></li>
+		<li><a href={resolve("/contact")}>Contact</a></li>
 	</ul>
 </nav>
 
