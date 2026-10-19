@@ -60,7 +60,7 @@
 </section>
 
 <section>
-    <h2>Covers</h2>
+    <h2>Arrangements/Covers</h2>
     <p>I do covers of video game music soundtracks sometimes:</p>
     <iframe
         width="100%"

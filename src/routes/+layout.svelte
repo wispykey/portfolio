@@ -53,7 +53,8 @@
 	main {
 		padding: 0.5rem 2rem;
 		/* TODO: Responsive widths */
-		width: 1000px;
+		width: 100%;
+		max-width: 1000px;
 	}
 
 	.main-container {
