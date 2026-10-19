@@ -33,7 +33,8 @@ export default defineConfig({
 				}
 			],
 			paths: {
-				base: '/portfolio'
+				base: '/portfolio',
+				relative: false
 			}
 		})
 	]
