@@ -9,14 +9,10 @@
     import { intepretPitch } from "./pitch-detection";
     import { BarlineType, Factory } from "vexflow";
 
-    let audioContext = new AudioContext();
-    let analyser = audioContext.createAnalyser();
+    let audioContext: AudioContext;
+    let analyser: AnalyserNode;
     let canvas: HTMLCanvasElement;
     let canvasContext: CanvasRenderingContext2D;
-
-    analyser.minDecibels = -110;
-    analyser.maxDecibels = -10;
-    analyser.smoothingTimeConstant = 0.85;
 
     const NO_INPUT = "No input detected";
     let displayedValue = $state(NO_INPUT);
@@ -296,6 +292,13 @@
 
     onMount(() => {
         canvasContext = canvas.getContext("2d")!;
+
+        audioContext = new AudioContext();
+        analyser = audioContext.createAnalyser();
+
+        analyser.minDecibels = -110;
+        analyser.maxDecibels = -10;
+        analyser.smoothingTimeConstant = 0.85;
 
         gainNode = audioContext.createGain();
         gainNode.connect(audioContext.destination);
