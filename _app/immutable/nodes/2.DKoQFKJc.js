@@ -1,1 +1,0 @@
-import{I as e,R as t,f as n,m as r}from"../chunks/B0etbvC5.js";import{r as i}from"../chunks/Dt-HX3Vu.js";import"../chunks/xihTtKlq.js";function a(e,t){throw new i(e,t.toString())}var o=t({load:()=>s});function s(){a(308,`.//music`)}var c=r(`<h1>Hi</h1> <p>I like sound, technology, and games.</p>`,1);function l(t){var r=c();e(2),n(t,r)}export{l as component,o as universal};
