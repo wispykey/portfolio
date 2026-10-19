@@ -1,4 +1,4 @@
-<h1>Games</h1>
+<h1>Projects</h1>
 
 <p>
     I develop games, as well as their audio implementations. Here are some
