@@ -12,11 +12,11 @@
 <nav>
 	<ul>
 		<!-- <li><a href="/">Home</a></li> -->
-		<li><a href="/music">Music</a></li>
-		<li><a href="/projects">Projects</a></li>
+		<li><a href={`${import.meta.env.BASE_URL}/music`}>Music</a></li>
+		<li><a href={`${import.meta.env.BASE_URL}/projects`}>Projects</a></li>
 		<!-- <li><a href="/tools">Tools</a></li> -->
 		<!-- <li><a href="/blog">Blog</a></li> -->
-		<li><a href="/contact">Contact</a></li>
+		<li><a href={`${import.meta.env.BASE_URL}/contact`}>Contact</a></li>
 	</ul>
 </nav>
 

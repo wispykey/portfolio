@@ -4,13 +4,14 @@ import { defineConfig } from 'vite';
 import { mdsvex } from 'mdsvex';
 
 export default defineConfig({
-	base: '/portfolio/',
+
 	plugins: [
 		sveltekit({
 			compilerOptions: {
 				// Force runes mode for the project, except for libraries. Can be removed in svelte 6.
 				runes: ({ filename }) =>
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
+
 			},
 
 			extensions: ['.svelte', '.md'],
@@ -30,7 +31,10 @@ export default defineConfig({
 						return { code: content.replace('<script context="module">', '<script module>') };
 					}
 				}
-			]
+			],
+			paths: {
+				base: '/portfolio'
+			}
 		})
 	]
 });
