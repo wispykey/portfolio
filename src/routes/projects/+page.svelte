@@ -12,8 +12,7 @@
                 format, and original audio assets.
             </p>
             <iframe
-                width="560"
-                height="315"
+                width="100%"
                 src="https://www.youtube.com/embed/lfx6yT8nD4E?si=-zR3pdtwy1EG_LDg"
                 title="YouTube video player"
                 frameborder="0"
@@ -37,8 +36,7 @@
                 forge the path forward.
             </p>
             <iframe
-                width="560"
-                height="315"
+                width="100%"
                 src="https://www.youtube.com/embed/Ym9SmawXXZ8?si=0vjkUlRcv05ApXEr"
                 title="YouTube video player"
                 frameborder="0"
@@ -59,8 +57,7 @@
                 attacks to survive.
             </p>
             <iframe
-                width="560"
-                height="315"
+                width="100%"
                 src="https://www.youtube.com/embed/x1kwNxVQwes?si=GfgEbyC-tsRxNggw"
                 title="YouTube video player"
                 frameborder="0"
@@ -122,6 +119,8 @@
 
     iframe {
         text-align: center;
+        max-width: 600px;
+        aspect-ratio: 16/9;
     }
 
     a {
