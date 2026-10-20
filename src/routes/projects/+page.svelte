@@ -1,25 +1,131 @@
 <h1>Projects</h1>
 
-<p>
-    I develop games, as well as their audio implementations. Here are some
-    projects available on itch.io:
-</p>
+<section>
+    <h2>Audio</h2>
+    <p>I integrate audio systems into games.</p>
 
-<iframe
-    title="Sprout Scout"
-    frameborder="0"
-    height="167"
-    width="100%"
-    src="https://itch.io/embed/2488886"
-    ><a href="https://wispykey.itch.io/sproutscout">Sprout Scout by wispykey</a
-    ></iframe
->
+    <div class="projects-container">
+        <div class="project">
+            <h3>Harmonic Hustle</h3>
+            <p>
+                Audio-visual synchronization in C++/OpenGL, a custom beatmap
+                format, and original audio assets.
+            </p>
+            <iframe
+                width="560"
+                height="315"
+                src="https://www.youtube.com/embed/lfx6yT8nD4E?si=-zR3pdtwy1EG_LDg"
+                title="YouTube video player"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="strict-origin-when-cross-origin"
+                allowfullscreen
+            ></iframe>
+        </div>
+    </div>
+</section>
 
-<iframe
-    width="100%"
-    height="167"
-    frameborder="0"
-    src="https://itch.io/embed/3450706"
-    ><a href="https://wispykey.itch.io/pacemaker">Pacemaker by wispykey</a
-    ></iframe
->
+<section>
+    <h2>Game Design</h2>
+    <p>I develop small games.</p>
+
+    <div class="projects-container">
+        <div class="project">
+            <h3>Sprout Scout</h3>
+            <p>
+                Puzzle-platformer game; manipulate aggressive tree branches to
+                forge the path forward.
+            </p>
+            <iframe
+                width="560"
+                height="315"
+                src="https://www.youtube.com/embed/Ym9SmawXXZ8?si=0vjkUlRcv05ApXEr"
+                title="YouTube video player"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="strict-origin-when-cross-origin"
+                allowfullscreen
+            ></iframe>
+            <button
+                ><a href="https://wispykey.itch.io/sproutscout"
+                    >Play on itch.io</a
+                ></button
+            >
+        </div>
+        <div class="project">
+            <h3>Pacemaker</h3>
+            <p>
+                Rhythm-action game; keep a steady beat while dodging enemy
+                attacks to survive.
+            </p>
+            <iframe
+                width="560"
+                height="315"
+                src="https://www.youtube.com/embed/x1kwNxVQwes?si=GfgEbyC-tsRxNggw"
+                title="YouTube video player"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="strict-origin-when-cross-origin"
+                allowfullscreen
+            ></iframe>
+            <button
+                ><a href="https://wispykey.itch.io/pacemaker"
+                    >Download on itch.io</a
+                ></button
+            >
+        </div>
+    </div>
+</section>
+
+<style>
+    p {
+        margin-top: 0;
+    }
+
+    h2 {
+        margin: 0;
+        padding: 0;
+    }
+
+    button {
+        width: 200px;
+        background-color: #fa5c5c;
+        border: none;
+        border-radius: 8px;
+        padding: 8px;
+    }
+
+    section {
+        margin: 40px 0;
+    }
+
+    a:visited {
+        color: white;
+    }
+
+    a {
+        text-decoration: none;
+        color: white;
+    }
+
+    .projects-container {
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 40px;
+    }
+
+    .project {
+        display: flex;
+        flex-direction: column;
+    }
+
+    iframe {
+        text-align: center;
+    }
+
+    a {
+        padding: 1rem;
+        width: 150px;
+    }
+</style>
