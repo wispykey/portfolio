@@ -94,8 +94,8 @@
 <section>
     <h2>Transcription + MIDI Insertion</h2>
     <p>
-        I enjoy transcribing OSTs for study purposes. Recently I have inserted
-        some transcriptions into GBA games' using native soundfonts:
+        I enjoy transcribing OSTs for study purposes. Recently I have ported
+        some transcriptions into GBA games, using their native soundfonts:
     </p>
     <iframe
         width="100%"
