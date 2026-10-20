@@ -8,8 +8,8 @@
         <div class="project">
             <h3>Harmonic Hustle</h3>
             <p>
-                Audio-visual synchronization in C++/OpenGL, a custom beatmap
-                format, and original audio assets.
+                Audio-visual synchronization, a custom beatmap format, and
+                original audio assets. [C++/OpenGL]
             </p>
             <iframe
                 width="100%"
@@ -33,7 +33,7 @@
             <h3>Sprout Scout</h3>
             <p>
                 Puzzle-platformer game; manipulate aggressive tree branches to
-                forge the path forward.
+                forge the path forward. [Godot]
             </p>
             <iframe
                 width="100%"
@@ -54,7 +54,7 @@
             <h3>Pacemaker</h3>
             <p>
                 Rhythm-action game; keep a steady beat while dodging enemy
-                attacks to survive.
+                attacks to survive. [Godot]
             </p>
             <iframe
                 width="100%"
